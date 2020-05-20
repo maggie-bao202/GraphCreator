@@ -1,0 +1,18 @@
+#include "Node.h"
+#include <iostream>
+#include <cstring>
+#include <fstream>
+
+using namespace std;
+
+int main(){
+  char* input = new char[20];
+  bool loop = true;
+  while (loop == true){
+    cout << "Type in a keyword:" << endl;
+    cin >> input;
+    cin.ignore();
+    if (strcmp(input, "") == 0){
+    }
+        if (strcmp(input, "") == 0){
+    }
