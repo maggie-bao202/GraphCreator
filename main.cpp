@@ -1,5 +1,3 @@
-//#include "Node.h"
-//#include "Edge.h"
 #include <iostream>
 #include <cstring>
 #include <vector>
@@ -10,12 +8,7 @@ using namespace std;
 struct Node{
   char* label;
   vector<Node*> connect;
-};
-
-struct Edge{
-  Node* one;
-  Node* two;
-  Node* weight;
+  vector<int> weights;
 };
 
 void addVertex(vector<Node*> vlist){
@@ -26,11 +19,12 @@ void addVertex(vector<Node*> vlist){
   vlist.push_back(temp);
 }
 
-bool addEdge(vector<Edge*> elist, vector<Node*> vlist){
+bool addEdge(vector<Node*> vlist){
   char* ione = new char(50);
   char* itwo = new char(50);
   bool yone = false;
   bool ytwo = false;
+  int weight = 0;
   vector<Node*> :: iterator it;
   cout << "Vertex 1: " << endl;
   cin.getline(ione, 50);
@@ -47,21 +41,71 @@ bool addEdge(vector<Edge*> elist, vector<Node*> vlist){
      }
    }
    if (yone = true && ytwo = true){
+     cout << "Edge Weight: " << endl;
+     cin >> weight;
+     cin.ignore();
+     one->connect.push_back(two);
+     one->weights.push_back(weight);
      return true;
    }
+   cout << "Invalid Nodes!" << endl;
    return false;
 }
-void removeVertex();
-void removeEdge();
+void removeVertex(vector<Node*> vlist){
+  char* input = new char(50);
+  bool found = false;
+  vector<Node*> :: iterator it;
+  cout << "Vertex Label: " << endl;
+  cin.getline(input, 50);
+  do{
+  for(it = vlist.begin(); it != vlist.end(); it++){
+    if (((*it)->label, input) == 0) {
+      Node* temp = *(it);
+      found = true;
+    }
+  }
+  } while (found == false);
+  for(it = vlist.begin(); it != vlist.end(); it++){
+    if ((*it)->connect == find) {
+    }
+  }
+}
+  
+    
+
+void removeEdge(vector<Node*> vlist){
+  char* ione = new char(50);
+  char* itwo = new char(50);
+  bool yone = false;
+  bool ytwo = false;
+  int weight = 0;
+  vector<Node*> :: iterator it;
+  cout << "Vertex 1: " << endl;
+  cin.getline(ione, 50);
+  cout << "Vertex 2: " << endl;
+  cin.getline(itwo, 50);
+  for(it = vlist.begin(); it != vlist.end(); it++){
+     if (strcmp((*it)->label, ione) == 0){
+       Node* one = *(it);
+       yone = true;
+     }
+     if (strcmp((*it)->label, itwo) == 0){
+       Node* two = *(it);
+       ytwo = true;
+     }
+  }
+  if (yone = true && ytwo = true){
+    one->connect.erase(one->connect.begin() + index);
+    one->weights.erase(one->weights.begin() + index);
+
+
 
 int main(){
   vector<Node*> vlist;
-  vector<Edge*> elist;
   char* keyword = new char[20];
-  char* input = new char[10];
   //use vectors
   bool loop = true;
-  bool truefalse = false;
+  bool found = false;
   while (loop == true){
     cout << "Type in a keyword:" << endl;
     cin >> keyword;
@@ -71,13 +115,8 @@ int main(){
     }
     else if (strcmp(keyword, "ADD EDGE") == 0){
       do{
-	truefalse = addEdge(elist);
-      } while (truefalse == true);
-      cout << "Edge Weight: " << endl;
-      int weight = 0;
-      cin >> weight;
-      cin.ignore();
-      one->connect.push_back(two);
+	found = addEdge(vlist);
+      } while (found == false);
     }
     else if (strcmp(keyword, "REMOVE VERTEX") == 0){
     }
