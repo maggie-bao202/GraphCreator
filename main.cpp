@@ -3,13 +3,14 @@
 #include <vector>
 #include <fstream>
 #include <iterator>
-#include <string.h>
-using namespace std;
 
-struct Node{
-  char* label;
-  vector<Node*> connect;
-  vector<int> weights;
+using namespace std;
+/*5/28/2020 Author: Maggie Bao Description: A graph is a data structure which consists of vertices, connected by edges. The program prompts the user to add and remove vertexes and edges. Additionally, the program can print out an adjacency matrix/table, which displays which vertices are connected.*/
+
+struct Node{ //Vertex structure--unrelated to a node within linked lists
+  char* label; //label of vertex
+  vector<Node*> connect; //list of vertices the vertex is connected to(edge is present)
+  vector<int> weightlist; //list of weights corresponding to edges
 };
 
 int distance(Node* x, Node* y);
@@ -18,63 +19,35 @@ void addEdge(vector<Node*>* vlist);
 void removeVertex(vector<Node*>* vlist);
 void removeEdge(vector<Node*>* vlist);
 void printTable(vector<Node*> vlist);
+void dijkstra(vector<Node*> vlist);
+
 int main(){
-  vector<Node*> vlist;
+  vector<Node*> vlist; //decided to use vectors--easy to add and remove
   char* keyword = new char[20];
-  //use vectors
   bool loop = true;
   while (loop == true){
-    cout << "Type in a keyword (\"AV\", \"AE\", \"RV\", \"RE\", \"SP\"or \"PRINT\"):" << endl;
+    cout << "Type in a keyword; \"AV\"(add vertex), \"AE\"(add edge), \"RV\"(remove vertex), \"RE\"(remove edge), \"SP\"(shortest path), \"P\"(print), or \"Q\"(quit):" << endl;
     cin >> keyword;
     cin.ignore();
     if (strcmp(keyword, "AV") == 0){
-      addVertex(&vlist);
-      cout << vlist.size() << endl;
+      addVertex(&vlist);//pass by reference to manipulate actual vector
     }
     else if (strcmp(keyword, "AE") == 0){
       addEdge(&vlist);
     }
     else if (strcmp(keyword, "RV") == 0){
       removeVertex(&vlist);
-      /*char* input = new char[20];
-      Node* temp = NULL;
-      cout << "Vertex Label: " << endl;
-      cin.getline(input, 50);
-      vector<Node*> :: iterator it;
-      for (it = vlist.begin(); it != vlist.end(); it++){
-	if (strcmp((*it)->label, input) == 0){
-	  temp = *(it);
-	}
-      }
-      if (temp == NULL){
-	cout << "Invalid Node!" << endl;
-	continue;
-      }
-      vector<Node*> :: iterator ite;
-      for (ite = vlist.begin(); ite != vlist.end(); ite++){
-	int i = isConnected((*ite), temp);
-	if (i != -1){//disconnect
-	  (*ite)->connect.erase((*ite)->connect.begin() + i);
-	  (*ite)->weights.erase((*ite)->weights.begin() + i);
-	}
-      }
-      for(int j = 0; j < vlist.size(); j++){
-	if (vlist[j] == temp){
-	  vlist.erase(vlist.begin() + j);
-	  delete temp;
-	}
-      }
-      printTable(vlist);*/
     }
     else if (strcmp(keyword, "RE") == 0){
       removeEdge(&vlist);
     }
-    else if (strcmp(keyword, "PRINT") == 0){
-      printTable(vlist);
+    else if (strcmp(keyword, "P") == 0){
+      printTable(vlist);//pass by value
     }
     else if (strcmp(keyword, "SP") == 0){
+      dijkstra(vlist);
     }
-    else if (strcmp(keyword, "QUIT") == 0){
+    else if (strcmp(keyword, "Q") == 0){
       cout << "Have a nice day!" << endl;
       loop = false;
       return 0;
@@ -87,26 +60,26 @@ int main(){
   return 0;
 }
 
-int distance(Node* x, Node* y){
+int distance(Node* x, Node* y){//returns the distance from current vertex to the first element of vertex--speifically used for edges, connected list
   vector<Node*> :: iterator it;
   for(it = x->connect.begin(); it != x->connect.end(); it++){
-     if ((*it) == y){
-       return it - x->connect.begin();
+    if ((*it) == y){//if the node is within list of connected vertices
+      return it - x->connect.begin();//return the distance
      }
    }
-   return -1;
+  return -1;//else return negative value
 }
 
-void addVertex(vector<Node*>* vlist){
+void addVertex(vector<Node*>* vlist){//take in user input and adds vertex to vertexlist
   Node* temp = new Node();
-  temp->label = new char(50);
+  char* input = new char(50);
   cout << "Vertex Label:" << endl;
-  cin.getline(temp->label, 50);
+  cin.getline(input, 50, '\n');
+  temp->label = input;//store input in temp->label, then push temp into vertexlist
   vlist->push_back(temp);
-  cout << vlist->size() << endl;
 }
 
-void addEdge(vector<Node*>* vlist){
+void addEdge(vector<Node*>* vlist){//takes two existing vertices and assigns edge weight between them, then connects them.
   char* ione = new char(50);
   char* itwo = new char(50);
   bool yone = false;
@@ -114,7 +87,8 @@ void addEdge(vector<Node*>* vlist){
   int weight = 0;
   Node* one = NULL;
   Node* two = NULL;
-  if (vlist->size() < 2 ){
+  
+  if (vlist->size() < 2 ){//if less than two exising vertices, return
     cout << "Not Enough Nodes!" << endl;
     return;
   }
@@ -123,9 +97,8 @@ void addEdge(vector<Node*>* vlist){
   cin.getline(ione, 50);
   cout << "Vertex 2: " << endl;
   cin.getline(itwo, 50);
-   for(it = vlist->begin(); it != vlist->end(); it++){
+  for(it = vlist->begin(); it != vlist->end(); it++){//searches vertexlist to see if the two vertices exists
      if (strcmp((*it)->label, ione) == 0){
-       cout << (*it)->label<<endl;
        one = (*it);
        yone = true;
      }
@@ -134,51 +107,116 @@ void addEdge(vector<Node*>* vlist){
        ytwo = true;
      }
    }
-   if (yone == true && ytwo == true){
+  if (yone == true && ytwo == true){//if both exist, assign weight
      cout << "Edge Weight: " << endl;
      cin >> weight;
      cin.ignore();
-     one->connect.push_back(two);
-     one->weights.push_back(weight);
+     one->connect.push_back(two);//vertex 2 is connected to vertex 1 in vertex 1's connected vertices list
+     one->weightlist.push_back(weight);//store the weight in a list as well
      return;
    }
    cout << "Invalid Vertices!" << endl;
 }
 
-void removeVertex(vector<Node*>* vlist){
+void removeVertex(vector<Node*>* vlist){//removes corresponding vertex in vertex list from input, as well as edges present in connect lists
   char* input = new char[20];
   Node* temp = NULL;
+  int d = 0;
   cout << "Vertex Label: " << endl;
   cin.getline(input, 50);
   vector<Node*> :: iterator it;
-  for (it = vlist->begin(); it != vlist->end(); it++){
+  for (it = vlist->begin(); it != vlist->end(); it++){//find the vertex to be deleted
     if (strcmp((*it)->label, input) == 0){
-      temp = *(it);
+      temp = *(it);//store address in temp
     }
   }
-  if (temp == NULL){
+  if (temp == NULL){//if vertex is not found, return
     cout << "Invalid Node!" << endl;
     return;
   }
   vector<Node*> :: iterator ite;
-  for (ite = vlist->begin(); ite != vlist->end(); ite++){
-    int i = distance((*ite), temp);
-    if (i != -1){//disconnect
-      (*ite)->connect.erase((*ite)->connect.begin() + i);
-      (*ite)->weights.erase((*ite)->weights.begin() + i);
+  for (ite = vlist->begin(); ite != vlist->end(); ite++){//go through vlist
+    d = distance((*ite), temp);//if temp is present within element, function will not return -1
+    if (d != -1){//if connected, disconnect
+      (*ite)->connect.erase((*ite)->connect.begin() + d);//both connect and weightlist should have the same distance because of how they are added in
+      (*ite)->weightlist.erase((*ite)->weightlist.begin() + d);
     }
   }
   vector<Node*> :: iterator iter;
   for(iter = vlist->begin(); iter != vlist->end(); iter++){
-    if (temp == (*iter)){
-      vlist->erase(iter);
-      iter--;
-      delete temp;
+    if (temp == (*iter)){//go to vertex in vlist
+      vlist->erase(iter);//clear memory
+      iter--;//fixes seg fault--erasing element causes to skip an interation, since size is tempered
+      delete temp;//delete pointer
     }
   }
 }
 
-void removeEdge(vector<Node*>* vlist){
+void removeEdge(vector<Node*>* vlist){//removes the vertex from any connection lists and weightlists
+  char* ione = new char(50);
+  char* itwo = new char(50);
+  Node* one = NULL;
+  Node* two = NULL;
+  bool yone = false;
+  bool ytwo = false;
+  int i = 0;
+  vector<Node*> :: iterator it;
+  cout << "Vertex 1: " << endl;
+  cin.getline(ione, 50);
+  cout << "Vertex 2: " << endl;
+  cin.getline(itwo, 50);//get the two vertices that edge is between
+  for(it = vlist->begin(); it != vlist->end(); it++){//check if both vertices exist
+    if (strcmp((*it)->label, ione) == 0){
+      one = *(it);
+      yone = true;
+    }
+    if (strcmp((*it)->label, itwo) == 0){
+      two = *(it);
+      ytwo = true;
+    }
+  }
+  if (yone == true && ytwo == true){//if both exist
+    i = distance(one, two);//find distance of second vertex from first element--if they are not connected will return -1
+    if (i != -1){//if connected
+      one->connect.erase(one->connect.begin() + i);//erase the vertex in connectedlist and weightlist
+      one->weightlist.erase(one->weightlist.begin() + i);
+      return;
+    }
+  }//if vertices don't exist or if vertices are not adjacent
+  cout << "Invalid Vertices!" << endl;
+}
+
+void printTable(vector<Node*> vlist){
+  vector<Node*> :: iterator it;
+  vector<Node*> :: iterator i;
+  vector<Node*> :: iterator j;
+  int d = 0 ;
+  cout << "Adjacency Table:" << endl << endl;
+  cout << "\t";
+  for (it = vlist.begin(); it != vlist.end(); it++){//first row, label headers
+    cout << (*it)->label;
+    cout << "\t";
+  }
+  cout << endl;
+  for (i = vlist.begin(); i!= vlist.end(); i++){//iterate through vertex list
+    cout << (*i)->label;//print label, then
+    cout << "\t";
+    for (j = vlist.begin(); j != vlist.end(); j++){//check for connection/weight between each combination of labels
+      d = distance((*i),(*j));//check for connection/distance of weight
+      if (d != -1) {//if connected
+	cout << (*i)->weightlist[d];//print the weight of the connected vertices
+	cout << "\t";
+      }
+      else{///if no weight, print stars
+	cout << "*";
+	cout << "\t";
+      }
+    }
+    cout << endl;
+  }
+}
+
+void dijkstra(vector<Node*> vlist){
   char* ione = new char(50);
   char* itwo = new char(50);
   Node* one = NULL;
@@ -191,52 +229,5 @@ void removeEdge(vector<Node*>* vlist){
   cin.getline(ione, 50);
   cout << "Vertex 2: " << endl;
   cin.getline(itwo, 50);
-  for(it = vlist->begin(); it != vlist->end(); it++){
-    if (strcmp((*it)->label, ione) == 0){
-      one = *(it);
-      yone = true;
-    }
-    if (strcmp((*it)->label, itwo) == 0){
-      two = *(it);
-      ytwo = true;
-    }
-  }
-  if (yone == true && ytwo == true){
-    i = distance(one, two);
-    if (i != -1){
-      one->connect.erase(one->connect.begin() + i);
-      one->weights.erase(one->weights.begin() + i);
-      return;
-    }
-  }
-  cout << "Invalid Vertices!" << endl;
+  
 }
-
-void printTable(vector<Node*> vlist){
-  vector<Node*> :: iterator it;
-  vector<Node*> :: iterator i;
-  vector<Node*> :: iterator j;
-  cout << "Adjacency Table:" << endl << endl;
-  cout << "\t";
-  for (it = vlist.begin(); it != vlist.end(); it++){
-    cout << (*it)->label;
-    cout << "\t";
-  }
-  cout << endl;
-  for (i = vlist.begin(); i!= vlist.end(); i++){
-    cout << (*i)->label;
-    cout << "\t";
-    for (j = vlist.begin(); j != vlist.end(); j++){
-      if (distance((*i), (*j)) != -1) {
-	cout << (*i)->weights[distance((*i),(*j))];
-	cout << "\t";
-      }
-      else{
-	cout << "*";
-	cout << "\t";
-      }
-    }
-    cout << endl;
-  }
-}
-     
