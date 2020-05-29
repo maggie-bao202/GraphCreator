@@ -12,6 +12,11 @@ struct Node{ //Vertex structure--unrelated to a node within linked lists
   vector<Node*> connect; //list of vertices the vertex is connected to(edge is present)
   vector<int> weightlist; //list of weights corresponding to edges
 };
+/*
+struct Queue{
+  int length;
+  int index;
+};*/
 
 int distance(Node* x, Node* y);
 void addVertex(vector<Node*>* vlist);
@@ -19,10 +24,10 @@ void addEdge(vector<Node*>* vlist);
 void removeVertex(vector<Node*>* vlist);
 void removeEdge(vector<Node*>* vlist);
 void printTable(vector<Node*> vlist);
-void dijkstra(vector<Node*> vlist);
+void dijkstra(vector<Node*> vlist, Node* start, Node* stop);
 
 int main(){
-  vector<Node*> vlist; //decided to use vectors--easy to add and remove
+  vector<Node*> vlist;
   char* keyword = new char[20];
   bool loop = true;
   while (loop == true){
@@ -45,7 +50,35 @@ int main(){
       printTable(vlist);//pass by value
     }
     else if (strcmp(keyword, "SP") == 0){
-      dijkstra(vlist);
+       char* ione = new char(50);
+       char* itwo = new char(50);
+       Node* one = NULL;
+       Node* two = NULL;
+       bool yone = false;
+       bool ytwo = false;
+       int i = 0;
+       vector<Node*> :: iterator it;
+       cout << "Vertex 1: " << endl;
+       cin.getline(ione, 50);
+       cout << "Vertex 2: " << endl;
+       cin.getline(itwo, 50);
+       for(it = vlist.begin(); it != vlist.end(); it++){//check if both vertices exist
+	 if (strcmp((*it)->label, ione) == 0){
+	   one = *(it);
+	   yone = true;
+	 }
+	 if (strcmp((*it)->label, itwo) == 0){
+	   two = *(it);
+	   ytwo = true;
+	 }
+       }
+       if (yone == true && ytwo == true){//if both exist, shortest path
+	 dijkstra(vlist, one, two);
+       }
+       else{
+	 cout << "Invalid Vertices!" << endl;
+       }
+	 
     }
     else if (strcmp(keyword, "Q") == 0){
       cout << "Have a nice day!" << endl;
@@ -216,18 +249,15 @@ void printTable(vector<Node*> vlist){
   }
 }
 
-void dijkstra(vector<Node*> vlist){
-  char* ione = new char(50);
-  char* itwo = new char(50);
-  Node* one = NULL;
-  Node* two = NULL;
-  bool yone = false;
-  bool ytwo = false;
-  int i = 0;
-  vector<Node*> :: iterator it;
-  cout << "Vertex 1: " << endl;
-  cin.getline(ione, 50);
-  cout << "Vertex 2: " << endl;
-  cin.getline(itwo, 50);
-  
+void dijkstra(vector<Node*> vlist, Node* start, Node* stop){//Dijkstra's algorithm, shortest path from one node to every other node in graph
+  cout << "nothing..." << endl;
+/*stop node is needed for optimization. Weights must be positive.
+initialize integer array "distance" the number of vertices and all elements set to infinity
+structure priority queue: index, distance
+start at first node-- index = 0, distance = 0. in queue: (0,0), in distance array: 0
+iterate through first node's connectedlist, and pick the lowest edge value to go to the next node. insert weight+previous value information into priority queue and distance array, go to the next optimal node. 
+check next node's connected vertices list. compare the distance and update as needed.
+if best route was already found, skip 
+Source: https://www.youtube.com/watch?v=pSqmAO-m7Lk
+*/
 }
